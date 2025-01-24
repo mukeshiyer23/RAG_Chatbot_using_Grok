@@ -18,25 +18,6 @@ services:
     volumes:
       - redis_data:/data
 
-#  app:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8000:8000"
-#    environment:
-#      - REDIS_HOST=redis
-#      - REDIS_PORT=6379
-#      - QDRANT_HOST=qdrant
-#      - QDRANT_PORT=6333
-#      - GROQ_API_KEY=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
-#    volumes:
-#      - ./app:/app
-#      - ./data:/app/data
-#    depends_on:
-#      - redis
-#      - qdrant
-
 volumes:
   redis_data:
   qdrant_data:
