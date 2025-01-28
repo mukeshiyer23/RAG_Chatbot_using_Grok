@@ -10,14 +10,10 @@ from transformers import AutoTokenizer
 
 class EmbeddingProcessor:
     def __init__(self,
-                 model_name='nlpaueb/legal-bert-base-uncased',
+                 model_name='sentence-transformers/all-MiniLM-L6-v2',  # Full Hugging Face path
                  collection_prefix='regulatory_collection'):
         """
         Specialized embedding processor for regulatory documents
-
-        Args:
-            model_name (str): Specialized legal/regulatory embedding model
-            collection_prefix (str): Unique collection name prefix
         """
         # Legal-specific embedding configuration
         self.embedding_model = SentenceTransformer(model_name)
@@ -48,10 +44,11 @@ class EmbeddingProcessor:
     def _create_specialized_collection(self):
         """Create specialized Qdrant collection for regulatory documents"""
         try:
+            # Aligned with model's actual output dimension
             self.qdrant_client.create_collection(
                 collection_name=self.collection_name,
                 vectors_config=models.VectorParams(
-                    size=768,  # Match embedding model's output
+                    size=384,  # Matches new model's dimension
                     distance=models.Distance.COSINE
                 )
             )
@@ -62,12 +59,7 @@ class EmbeddingProcessor:
     def _preprocess_regulatory_text(self, text: str) -> str:
         """
         Advanced text preprocessing for regulatory documents
-
-        - Normalize legal terminologies
-        - Remove unnecessary whitespaces
-        - Handle abbreviations
         """
-        # Legal-specific preprocessing
         text = text.lower()
         text = ' '.join(text.split())  # Remove extra whitespaces
 
@@ -86,8 +78,6 @@ class EmbeddingProcessor:
     def embed_text(self, text: str) -> List[float]:
         """
         Advanced embedding with regulatory domain preprocessing
-
-        Returns normalized embedding vector
         """
         preprocessed_text = self._preprocess_regulatory_text(text)
 
@@ -101,8 +91,6 @@ class EmbeddingProcessor:
     async def upsert_regulatory_documents(self, documents: List[Dict]):
         """
         Batch upsert of regulatory documents
-
-        Expects documents with: text, metadata, filename
         """
         points = []
         for doc in documents:
@@ -133,8 +121,6 @@ class EmbeddingProcessor:
     async def semantic_search(self, query: str, top_k: int = 5) -> List[Dict]:
         """
         Semantic search with regulatory context
-
-        Returns most relevant regulatory document chunks
         """
         query_vector = self.embed_text(query)
 

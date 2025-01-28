@@ -24,7 +24,6 @@ class IFSCARegulatoryChatbot:
         self.embedding_processor = EmbeddingProcessor()
         self.document_parser = DocumentParser(self.embedding_processor)
 
-
         # Caching Layer
         self.redis_client = redis.Redis.from_url(redis_url)
 
@@ -36,19 +35,10 @@ class IFSCARegulatoryChatbot:
     async def initialize_document_embeddings(self):
         """
         Process and embed documents from data folder
-
-        Steps:
-        1. Parse documents
-        2. Generate embeddings
-        3. Upsert to vector database
         """
         try:
             # Parse documents
-            parsed_documents = await self.document_parser.parse_documents()
-
-            # Upsert to embedding processor
-            await self.embedding_processor.upsert_regulatory_documents(parsed_documents)
-
+            await self.document_parser.parse_documents()
             print("Document embeddings processed successfully.")
         except Exception as e:
             logging.error(f"Document initialization error: {e}")
