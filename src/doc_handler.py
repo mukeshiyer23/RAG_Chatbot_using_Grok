@@ -187,12 +187,37 @@ class DocxHandler(DocHandler):
 class ExcelHandler(DocHandler):
     def extract_content(self):
         try:
-            df = pd.read_excel(self.file_path)
-            self.raw_content = df.to_string(index=False)
+            if self.file_path.suffix.lower() == '.xlsx':
+                self._extract_xlsx()
+            else:
+                self._extract_xls()
         except Exception as e:
             logger.error(f"Excel extraction failed for {self.file_path}: {str(e)}")
             raise DocumentProcessingError("Excel processing failed") from e
 
+    def _extract_xlsx(self):
+        import openpyxl
+        workbook = openpyxl.load_workbook(self.file_path)
+        content = []
+        for sheet in workbook.sheetnames:
+            ws = workbook[sheet]
+            sheet_content = []
+            for row in ws.iter_rows(values_only=True):
+                sheet_content.append(' '.join(str(cell) for cell in row if cell is not None))
+            content.append(f"Sheet {sheet}:\n" + '\n'.join(sheet_content))
+        self.raw_content = '\n\n'.join(content)
+
+    def _extract_xls(self):
+        import xlrd
+        workbook = xlrd.open_workbook(self.file_path)
+        content = []
+        for sheet in workbook.sheets():
+            sheet_content = []
+            for row_idx in range(sheet.nrows):
+                row_values = [str(cell.value) for cell in sheet.row(row_idx) if cell.value]
+                sheet_content.append(' '.join(row_values))
+            content.append(f"Sheet {sheet.name}:\n" + '\n'.join(sheet_content))
+        self.raw_content = '\n\n'.join(content)
 
 class MarkdownHandler(DocHandler):
     def extract_content(self):

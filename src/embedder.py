@@ -1,5 +1,4 @@
 from sentence_transformers import SentenceTransformer
-
 from src.utils.logger import logger
 
 
@@ -8,6 +7,7 @@ class Embedder:
         try:
             self.model = SentenceTransformer(model_name)
             logger.info(f"Loaded embedding model: {model_name}")
+            self.vector_size = self.model.get_sentence_embedding_dimension()
         except Exception as e:
             logger.error(f"Failed to load embedding model: {str(e)}")
             raise
