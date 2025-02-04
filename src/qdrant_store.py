@@ -36,13 +36,13 @@ class QdrantStore:
 
             if not self.collection_exists(collection_name):
                 self.client.create_collection(
-                    collection_name=collection_name,
-                    vectors_config=models.VectorParams(
-                        size=vector_size,
-                        distance=models.Distance.COSINE
-                    ),
-                    optimizers_config=models.OptimizersConfigDiff(
-                        default_segment_number=2
+                    collection_name=f"{collection_name}",
+                    vectors_config=models.VectorParams(size=vector_size, distance=models.Distance.COSINE),
+                    quantization_config=models.ScalarQuantization(
+                        scalar=models.ScalarQuantizationConfig(
+                            type=models.ScalarType.INT8,
+                            always_ram=True,
+                        ),
                     ),
                 )
                 logger.info(f"Created collection: {collection_name}")
